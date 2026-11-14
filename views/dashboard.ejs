@@ -1,0 +1,190 @@
+<style>
+.status {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status.active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status.expired {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.options_button:hover{
+    cursor: pointer;
+}
+
+</style>
+
+<link href="style/home.css" rel="stylesheet">
+
+<%- include("partials/URLCounter") %>
+
+
+<div class="container mt-5">
+    <% if (error === "alreadyExists") { %>
+        <div class="alert alert-danger">
+            This URL is already registered and active!
+        </div>
+    <% } %>
+
+    <!-- Top section: Heading and buttons -->
+    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#staticBackdrop">+ Create URL</button>
+
+
+
+    <!-- Search section -->
+    <div class="row mb-3">
+        <div class="col-md-5 ms-auto">
+            <input type="text" class="form-control" id="searchInput" placeholder="Search shortened URL...">
+        </div>
+    </div>
+
+
+    <!-- URL Table -->
+    <div class="table-responsive">
+        <table id="urlTable" class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Sr no.</th>
+                    <th>Direct Link</th>
+                    <th>Shareable Link</th>
+                    <th>Date Created</th>
+                    <th>Time Created</th>
+                    <th>Expires on Date</th>
+                    <th>State</th>
+                    <th>Clicks</th>
+                    <th>Options</th>
+                </tr>
+            </thead>
+            
+            <tbody id="urlTable">
+
+                <% details.forEach((url, index) => { %>
+                <tr>
+                    <th scope="row"><%= index + 1 %></th>
+                    <td>
+                        <a href="/<%= url.shortCode %>" target="_blank"> <!-- _blank - creates link in new tab -->
+                            <%= url.shortCode %>
+                        </a> 
+                    </td> 
+                    <td>
+                        http://localhost:3000/<%= url.shortCode %>
+
+                        <button class="btn btn-sm btn-outline-primary shareBtn"
+                            data-link="http://localhost:3000/<%= url.shortCode %>">
+                            <i class="bi bi-share"></i>Copy
+                        </button>
+                    </td> 
+
+                    <td>
+                        <%= new Date(url.createdAt).toLocaleDateString('en-IN') %>
+                    </td>
+
+                    <td>
+                        <%= new Date(url.createdAt).toLocaleTimeString('en-IN') %>
+                    </td>
+
+                    <td><%= new Date(url.expiresOn).toLocaleDateString('en-IN') %></td>
+
+                    <td>
+                        <% if (url.expiresOn && new Date(url.expiresOn) <= new Date()) { %>
+                            <span class="status expired">
+                                <span class="status-dot"></span>
+                                Expired
+                            </span> 
+                        <% } else { %>
+                            <span class="status active">
+                                <span class="status-dot"></span>
+                                Active
+                            </span>
+                        <% } %>
+                    </td>
+
+                    <td><%= url.urlclicks %></td>
+                    <td>
+                        <div class="options_button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                            <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/>
+                            </svg>
+                        </div>
+                        <ul class="dropdown-menu">
+                            <li><a class="-item" href="/home/dashboard/analysis?shortcode=<%= url.shortCode %>">Analysis</a></li>
+                            <hr>
+                            <li><a class="-item" href="/home/dashboard/qrcode?shortcode=<%= url.shortCode %>">Generate QRcode</a></li>
+                        </ul>
+                    </td>
+
+             
+                </tr>
+
+
+            <% }) %>
+
+            </tbody>
+            <%- include("partials/pagination") %>
+        </table>
+
+    </div>
+
+
+    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="staticBackdropLabel">Short URL</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                
+                <form id="urlForm" class="card shadow-lg border-0 p-4 mx-auto" style="width: 500px; max-width: 100%;" action="/" method="POST">
+                    <div class="text-center mb-4">
+                        <h3 class="fw-bold mb-1">🔗 URL Shortener</h3>
+                        <p class="text-muted mb-0">Create a short and temporary link</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="url" class="form-label fw-semibold">Enter your URL</label>
+                        <div class="input-group">
+                            <span class="input-group-text">https://</span>
+                            <input type="url" class="form-control" id="url" name="url" placeholder="your-long-url.com" required>
+                        </div>
+
+                        <div class="form-text">Enter the URL you want to shorten.</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Set URL Expiry</label>
+
+                        <div class="row g-3">
+                            <div class="col-7">
+                                <label for="expiryDate" class="form-label text-muted small">Expiry Date</label>
+                                <input type="date" class="form-control" id="expiryDate" name="expiryDate" required>
+                            </div>
+
+                            <div class="col-5">
+                                <label for="expiryTime" class="form-label text-muted small">Expiry Time</label>
+                                <input type="time" class="form-control" id="expiryTime" name="expiryTime" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p id="expiryError" class="text-danger"></p>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="urlForm" class="btn btn-primary" id="shortBtn">Shorten URL</button>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/home.js"></script>

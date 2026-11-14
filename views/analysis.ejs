@@ -1,0 +1,75 @@
+<style>
+    .analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+    padding: 20px;
+}
+
+.chart-card {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    height: 280px;
+}
+
+.chart-card canvas {
+    max-height: 200px;
+}
+
+@media (max-width: 100px) {
+    .analytics-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+
+
+<div class="analytics-grid">
+
+    <div class="chart-card">
+        <h3>Device Distribution</h3>
+        <canvas id="deviceChart"></canvas>
+    </div>
+
+    <div class="chart-card">
+        <h3>Browser Distribution</h3>
+        <canvas id="browserChart"></canvas>
+    </div>
+
+    <div class="chart-card">
+        <h3>Operating Systems</h3>
+        <canvas id="osChart"></canvas>
+    </div>
+
+    <div class="chart-card">
+        <h3>Country Distribution</h3>
+        <canvas id="countryChart"></canvas>
+    </div>
+
+    <div class="chart-card">
+        <h3>City Distribution</h3>
+        <canvas id="cityChart"></canvas>
+    </div>
+
+    <div class="chart-card">
+        <h3>Clicks Over Time</h3>
+        <canvas id="clickChart"></canvas>
+    </div>
+
+    <div id="analyticsData"
+        data-clicks='<%- clicksJson %>'>
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/js/analysis.js"></script>

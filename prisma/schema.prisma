@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+
+model Url {
+  id          String    @id @db.VarChar(100)
+  originalUrl String    @map("original_url") @db.VarChar(2048)
+  shortCode   String?   @unique(map: "short_code") @map("short_code") @db.VarChar(100)
+  createdAt   DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
+  expiresOn   DateTime? @map("expires_on") @db.Timestamp(0)
+  urlclicks   Int       @default(0)
+
+  // Relationship with UrlClicked
+  urlClicks   UrlClicked[]
+
+  @@map("urls")
+}
+
+model UrlClicked {
+  id        Int      @id @default(autoincrement())
+  urlId     String   @map("url_id") @db.VarChar(100)
+  city      String?  @db.VarChar(100)
+  country   String?  @db.VarChar(100)
+  os        String?  @db.VarChar(100)
+  device    String?  @db.VarChar(50)
+  browser   String?  @db.VarChar(100)
+  clickedAt DateTime @default(now()) @map("clicked_at")
+
+  url       Url      @relation(fields: [urlId], references: [id], onDelete: Cascade)
+
+  @@index([urlId])
+  @@map("urlClicked")
+}
